@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "wpp-chat-analysis"
+version = "0.1.0"
+description = ""
+authors = ["Pedro Cunha <dev@citsec.com.br>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.3"
+polars = "^1.16.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

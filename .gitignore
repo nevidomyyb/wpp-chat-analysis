@@ -1,0 +1,60 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.env/
+.venv/
+*.env
+*.venv
+
+# Poetry-specific files
+poetry.lock
+
+# Configuração de IDEs e editores de texto
+.idea/
+.vscode/
+*.swp
+*~
+
+# Arquivos de logs e temporários
+*.log
+*.tmp
+*.bak
+*.pid
+*.seed
+*.cover
+*.out
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Test coverage
+.coverage
+htmlcov/
+.coverage.*
+
+# Resultados de builds
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Cache e arquivos temporários do pytest
+.pytest_cache/
+.tox/
+.cache/
+
+# Configuração de notebooks Jupyter
+.ipynb_checkpoints/
+
+# Arquivos gerados por MyPy e outros linters
+.mypy_cache/
+.dmypy.json
+.pyre/
+
+# Arquivos temporários de edição e lock de dependências
+*.lock
