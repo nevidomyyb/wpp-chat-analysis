@@ -5,7 +5,7 @@ from main import phrases_to_remove
 def create_ngrams(message):
     words = message.split()
     ngrams =[]
-    for n in range(5, len(words)+1):
+    for n in range(3, len(words)+1):
         for i in range(len(words) -n + 1):
             ngram = words[i: i + n]
             phrase = ' '.join(ngram)
@@ -34,7 +34,18 @@ def read_save_batched():
                 df_batch = pl.concat([df_batch, df_this_message])
         df_batch.write_csv('phrases_sender.csv', separator=';')
         
+def quantify_ngrams():
+    file = 'phrases_sender.csv'
+    df = pl.scan_csv(file, separator=';', has_header=True)
+    phrase_counts = df.group_by(['sender', 'phrase']).agg(pl.count("phrase").alias("count"))
+    sorted_phrases = phrase_counts.sort(['count', 'sender'], descending=[True, False])
+    top_20 = sorted_phrases.group_by('sender').head(30)
+    result = top_20.collect()
+    result.write_csv('./most_sended_phrases.csv', separator=';', include_header=True)
+    
+        
 if __name__ == "__main__":
     start = time()
     read_save_batched()
+    quantify_ngrams()
     print(f"Finished the process with: {(time()-start)/60} minutes.")
