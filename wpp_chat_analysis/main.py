@@ -5,6 +5,8 @@ from typing import List
 from collections import Counter
 from nltk.corpus import stopwords
 import nltk
+from .numbers import numbers_mapping as np
+
 nltk.download('stopwords')
 
 remove = [
@@ -45,7 +47,9 @@ def parse_messages(chat_data: List[str]) -> pd.DataFrame:
     return pd.DataFrame(messages)
 
 def get_numbers_and_names(df: pd.DataFrame) -> None:
-    names_numbers_mapping = {}
+    #np is a dict {"Name": "Number"} mapping each Member
+    #the "Name" key is the values from the text.
+    names_numbers_mapping = np
     df['sender'] = df['sender'].map(names_numbers_mapping).fillna('Desconhecido')
     df.to_csv('./messages_with_names.csv', sep=';')
 
@@ -94,57 +98,6 @@ def generate_word_frequency() -> None:
     df = pd.DataFrame(data)
     df.to_csv('words_by_member.csv', sep=';')
 
-def generate_word_combination(message):
-    words = message.split()
-    if len(words) < 4:
-        return []
-    ngrams = []
-    for n in range(4, len(words) + 1):
-        for i in range(len(words) - n + 1):
-            ngram = words[i: i + n]
-            phrase = ' '.join(ngram)
-            if phrase not in phrases_to_remove:
-                ngrams.append(phrase)
-    return ngrams
-    # for n in range(4, len(words) + 1):
-    #     for i in range(len(words) - n + 1):
-    #         ngram = words[i: i+n]
-    #         phrase = ' '.join(ngram)
-    #         if phrase in phrases_to_remove:
-    #             continue
-    #         combinations.append(phrase)
-    # return combinations
-    
-def process_sender_message(df):
-    phrase = Counter()
-    for message in df['message']:
-        message = MEDIA_REGEX.sub('', message)
-        message = PUNCTUATION_REGEX.sub('', message)
-        message = message.lower()
-        phrase.update(generate_word_combination(message))
-    return phrase.most_common(10)
-
-
-def generate_phrase_quantitaty() -> None:
-    df = pd.read_csv('./messages_with_names.csv', sep=';')
-    senders = df['sender'].unique()
-    
-    data = []
-    for sender in senders:
-        print(f"Started sender: {sender}")
-        if sender != "Matheus":
-            continue
-        df_sender = df[df['sender'] == sender].fillna('Mensagem inválida.')
-        top_phrases = process_sender_message(df_sender)
-        for phrase, count in top_phrases:
-            data.append({
-                'member': sender,
-                'phrase': phrase,
-                'count': count
-            })
-        print(f"Finished sender: {sender}")
-    df_output = pd.DataFrame(data)
-    df_output.to_csv('./ngram_by_member.csv', sep=';')
 
 if __name__ == "__main__":
     start = time()
@@ -153,5 +106,4 @@ if __name__ == "__main__":
     # df.to_csv('./messages_raw.csv', sep=';')
     # get_numbers_and_names(df)
     # get_quantity_message_by_member()
-    generate_phrase_quantitaty()
     print(f"Time elapsed: {(time()-start)/60} minutes.")
