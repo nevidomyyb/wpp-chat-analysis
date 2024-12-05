@@ -58,3 +58,5 @@ dist/
 
 # Arquivos temporários de edição e lock de dependências
 *.lock
+*.csv
+*.txt
