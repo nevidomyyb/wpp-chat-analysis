@@ -5,7 +5,7 @@ from typing import List
 from collections import Counter
 from nltk.corpus import stopwords
 import nltk
-from .numbers import numbers_mapping as np
+from .numbers_ import numbers_mapping as np
 
 nltk.download('stopwords')
 
