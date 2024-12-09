@@ -5,7 +5,7 @@ from typing import List
 from collections import Counter
 from nltk.corpus import stopwords
 import nltk
-from .numbers_ import numbers_mapping as np
+from numbers_ import numbers_mapping as numb
 
 nltk.download('stopwords')
 
@@ -49,7 +49,7 @@ def parse_messages(chat_data: List[str]) -> pd.DataFrame:
 def get_numbers_and_names(df: pd.DataFrame) -> None:
     #np is a dict {"Name": "Number"} mapping each Member
     #the "Name" key is the values from the text.
-    names_numbers_mapping = np
+    names_numbers_mapping = numb
     df['sender'] = df['sender'].map(names_numbers_mapping).fillna('Desconhecido')
     df.to_csv('./messages_with_names.csv', sep=';')
 
@@ -60,24 +60,8 @@ def get_quantity_message_by_member() -> None:
 
 def generate_word_frequency() -> None:
     df = pd.read_csv('./messages_with_names.csv', sep=';')
-    df_eduardo = df[df['sender'] == "Eduardo"]
-    df_lucas = df[df['sender'] == "Lucas"]
-    df_vagoneta = df[df['sender'] == "Vagoneta"]
-    df_diesel = df[df['sender'] == "Vin Diesel"]
-    df_pedro = df[df['sender'] == "Pedro"]
-    df_will = df[df['sender'] == "Will"]
-    df_luciano = df[df['sender'] == "Luciano"]
-    df_matheus = df[df['sender'] == "Matheus"]
-    df_jean = df[df['sender'] == "Jean"]
-    df_gui = df[df['sender'] == "Guilherme"]
-    df_heitor = df[df['sender'] == "Heitor"]
-    df_lian = df[df['sender'] == "Lian"]
-    df_caua = df[df['sender'] == "Cauã"]
-    df_joao = df[df['sender'] == "João"]
-    dfs = [
-        df_eduardo, df_lucas, df_vagoneta, df_diesel, df_pedro, df_will, df_joao,
-        df_matheus, df_jean, df_gui, df_heitor, df_lian, df_caua, df_luciano
-    ]
+    senders = df['sender'].drop_duplicates().to_list()
+    dfs = [df[df['sender'] == sender] for sender in senders]
     sender_word_frequency = {}
     stopwords_ = set(stopwords.words('portuguese'))
     
@@ -106,4 +90,5 @@ if __name__ == "__main__":
     # df.to_csv('./messages_raw.csv', sep=';')
     # get_numbers_and_names(df)
     # get_quantity_message_by_member()
+    generate_word_frequency()
     print(f"Time elapsed: {(time()-start)/60} minutes.")
