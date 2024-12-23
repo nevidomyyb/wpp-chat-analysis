@@ -14,6 +14,9 @@ wordcloud = "^1.9.4"
 streamlit = "^1.40.2"
 altair = "^5.5.0"
 matplotlib = "^3.9.3"
+imageio = {extras = ["ffmpeg"], version = "^2.36.1"}
+pillow = "^11.0.0"
+bar-chart-race = "^0.1.0"
 
 
 [build-system]
