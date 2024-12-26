@@ -17,7 +17,7 @@ class Raw:
         #the "Name" key is the values from the text.
         names_numbers_mapping = numb
         df['sender'] = df['sender'].map(names_numbers_mapping).fillna('Desconhecido')
-        df.to_csv(file_final, sep=';')
+        df.to_csv(file_final, sep=';', header=True)
         
     def create_ngrams(self, message):
         words = message.split()
@@ -48,7 +48,7 @@ class Raw:
                     df_batch = df_batch.collect().vstack(df_this_message)
                 else:
                     df_batch = pl.concat([df_batch, df_this_message])
-            df_batch.write_csv(file_final, separator=';')
+            df_batch.write_csv(file_final, separator=';', include_header=True)
     
     def create(self, original_file_path: str) -> bool:
         start = time()
