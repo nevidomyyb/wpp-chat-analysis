@@ -4,7 +4,7 @@ from time import time
 
 
 start = time()
-df = pl.read_csv('./words_count_by_day.csv', separator=';')
+df = pl.read_csv('./curated/words_quantity_member_day.csv', separator=';')
 df = df.with_columns(pl.col('date').str.to_date('%Y-%m-%d').alias('date'))
 df = df.drop_nulls('date')
 df = df.pivot(on='sender', index='date', values='count', aggregate_function='sum')

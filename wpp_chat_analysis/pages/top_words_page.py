@@ -5,8 +5,8 @@ import pandas as pd
 import altair
 import io
 
-df = pd.read_csv('./words_by_member.csv', sep=';')
-df_messages = pd.read_csv('./messages_by_member.csv', sep=';')
+df = pd.read_csv('./curated/words_quantity_member.csv', sep=';')
+df_messages = pd.read_csv('./curated/messages_quantity_member.csv', sep=';')
 members_oc = df['member'].value_counts()
 top_20 = members_oc.head(20).index
 df = df[df['member'].isin(top_20)]

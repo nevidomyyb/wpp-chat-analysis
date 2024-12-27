@@ -9,7 +9,7 @@ def calc_var(avarege, df):
     return sum_all/len(values)
 st.set_page_config(layout='wide')
 st.title("Messages counts of member in the Sem Limites group between 2019-2024")
-df = pd.read_csv('./messages_by_member.csv',sep=';')
+df = pd.read_csv('./curated/messages_quantity_member.csv',sep=';')
 
 average = df['quantity'].sum()/df.shape[0]
 
