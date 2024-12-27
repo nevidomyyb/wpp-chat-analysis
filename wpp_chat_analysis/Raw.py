@@ -1,9 +1,11 @@
 import os
 import pandas as pd
 import polars as pl
-from utils import load_chat, parse_messages, phrases_to_remove
+from utils import phrases_to_remove
 from numbers_ import numbers_mapping as numb
 from time import time
+from typing import List
+import re
 
 class Raw:
     
@@ -11,6 +13,25 @@ class Raw:
         self.raw_path = raw_path
         if not os.path.isdir(raw_path):
             os.mkdir(raw_path)
+    
+    def _load_chat(self, file_path: str) -> List[str]:
+        with open(file_path, "r", encoding="utf-8") as file:
+            chat_data = file.readlines()
+        return chat_data
+    
+    def _parse_messages(self, chat_data: List[str]) -> pd.DataFrame:
+        messages = []
+        pattern = r"(\d{1,2}/\d{1,2}/\d{4} \d{1,2}:\d{2} - )(.+?): (.*)"
+        lines = 0
+        for line in chat_data:
+            lines+=1
+            match = re.match(pattern, line)
+            if match:
+                date_time = match.group(1)
+                sender = match.group(2)
+                message = match.group(3)
+                messages.append({"date_time": date_time, "sender": sender, "message": message})
+        return pd.DataFrame(messages)
     
     def create_raw_with_names(self, df: pd.DataFrame, file_final: str) -> None:
         #np is a dict {"Name": "Number"} mapping each Member
@@ -52,8 +73,8 @@ class Raw:
     
     def create(self, original_file_path: str) -> bool:
         start = time()
-        chat_data = load_chat(original_file_path)
-        df = parse_messages(chat_data)
+        chat_data = self._load_chat(original_file_path)
+        df = self._parse_messages(chat_data)
         df.to_csv(os.path.join(self.raw_path, 'raw.csv'), sep=';')
         print(f"{(time()-start)/60} minutes to create raw file.")
         self.create_raw_with_names(df, os.path.join(self.raw_path, 'raw_with_names.csv'))

@@ -26,25 +26,6 @@ phrases_to_remove = [
 MEDIA_REGEX = re.compile(r'<Mídia oculta>')
 PUNCTUATION_REGEX = re.compile(r'[^\w\s]')
 
-def load_chat(file_path: str) -> List[str]:
-    with open(file_path, "r", encoding="utf-8") as file:
-        chat_data = file.readlines()
-    return chat_data
-
-def parse_messages(chat_data: List[str]) -> pd.DataFrame:
-    messages = []
-    pattern = r"(\d{1,2}/\d{1,2}/\d{4} \d{1,2}:\d{2} - )(.+?): (.*)"
-    lines = 0
-    for line in chat_data:
-        lines+=1
-        match = re.match(pattern, line)
-        if match:
-            date_time = match.group(1)
-            sender = match.group(2)
-            message = match.group(3)
-            messages.append({"date_time": date_time, "sender": sender, "message": message})
-    return pd.DataFrame(messages)
-
 def get_quantity_message_by_member() -> None:
     df = pd.read_csv('./messages_with_names.csv', sep=';')
     counts = df.groupby('sender').size()
