@@ -38,7 +38,7 @@ class Raw:
         #the "Name" key is the values from the text.
         names_numbers_mapping = numb
         df['sender'] = df['sender'].map(names_numbers_mapping).fillna('Desconhecido')
-        df.to_csv(file_final, sep=';', header=True)
+        df.to_csv(file_final, sep=';', header=True, index=False)
         
     def create_ngrams(self, message):
         words = message.split()
@@ -75,7 +75,7 @@ class Raw:
         start = time()
         chat_data = self._load_chat(original_file_path)
         df = self._parse_messages(chat_data)
-        df.to_csv(os.path.join(self.raw_path, 'raw.csv'), sep=';')
+        df.to_csv(os.path.join(self.raw_path, 'raw.csv'), sep=';', index=False)
         print(f"{(time()-start)/60} minutes to create raw file.")
         self.create_raw_with_names(df, os.path.join(self.raw_path, 'raw_with_names.csv'))
         print(f"{(time()-start)/60} minutes to create raw_with_names file.")
