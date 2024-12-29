@@ -16,8 +16,8 @@ class Curated:
             
     def create_messages_quantity_member(self, original_file: str, final_file: str) -> None:
         df = pd.read_csv(original_file, sep=';')
-        counts = df.groupby('sender',).size()
-        counts.to_csv(final_file, sep=';', header=True)
+        counts = df.groupby('sender',).size().rename('quantity')
+        counts.to_csv(final_file, sep=';')
         
     def create_words_quantity_member_day(self, original_file: str, final_file: str) -> None:
         df = pl.scan_csv(original_file, separator=';', has_header=True)

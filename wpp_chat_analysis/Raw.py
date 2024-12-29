@@ -6,6 +6,7 @@ from numbers_ import numbers_mapping as numb
 from time import time
 from typing import List
 import re
+import io
 
 class Raw:
     
@@ -15,8 +16,12 @@ class Raw:
             os.mkdir(raw_path)
     
     def _load_chat(self, file_path: str) -> List[str]:
-        with open(file_path, "r", encoding="utf-8") as file:
-            chat_data = file.readlines()
+        if isinstance(file_path, io.BytesIO):
+            file_path.seek(0)
+            chat_data = file_path.read().decode("utf-8")
+        else:
+            with open(file_path, "r", encoding="utf-8") as file:
+                chat_data = file.readlines()
         return chat_data
     
     def _parse_messages(self, chat_data: List[str]) -> pd.DataFrame:
