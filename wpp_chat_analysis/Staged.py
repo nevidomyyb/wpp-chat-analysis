@@ -1,6 +1,11 @@
 import os
 import polars as pl
-from time import time
+import pandas as pd
+from time import time, sleep
+from nltk import ngrams
+from nltk.corpus import stopwords
+from collections import Counter
+import re
 
 class Staged:
     
@@ -65,6 +70,34 @@ class Staged:
         result = top_20.collect()
         result.write_csv(final_file, separator=';', include_header=True)
         
+    def create_unique_ngrams(self, original_file: str, final_file: str) -> None:
+        data = [["sender", "ngram"],]
+        original_df = pd.read_csv(original_file, sep=';')
+        stop_words = set(stopwords.words('portuguese'))
+        for i, row in original_df.iterrows():
+            message = str(row['message']).lower()
+            message = re.sub(r'http\S+', '', message)
+            message = re.sub(r'[^a-zA-ZÀ-ú ]', '', message)
+            tokenized = message.split()
+            tokens = [token for token in tokenized if token not in stop_words]
+            _ngram = list(ngrams(tokens, 6))
+            if len(_ngram) == 0:
+                continue
+            if len(_ngram) == 1:
+                data.append([row['sender'], " ".join(_ngram[0])])
+            else:
+                i, j = 0, len(_ngram)-1
+                data.append([row['sender'], " ".join(_ngram[0])])
+                while i != j:
+                    intersec = Counter(_ngram[i]) & Counter(_ngram[j])
+                    if len(intersec) >= 3:
+                        j-=1
+                    else:
+                        data.append([row['sender'], " ".join(_ngram[j])])
+                        j-=1
+        df_final = pd.DataFrame(data)               
+        df_final.to_csv(final_file, sep=';', )
+        
     def create(self):
         start = time()
         self.create_activity_summary(os.path.join('./raw/', 'raw_with_names.csv'), os.path.join(self.staged_path, 'activity_summary.csv'))
@@ -72,4 +105,11 @@ class Staged:
         self.create_messages_by_time(os.path.join('./raw/', 'raw_with_names.csv'), os.path.join(self.staged_path, 'messages_by_time.csv'))
         print(f"{(time()-start)/60} minutes to messages by time summary file.")
         self.create_most_sended_ngrams(os.path.join('./raw/', 'ngrams_with_names.csv'), os.path.join(self.staged_path, 'most_sended_ngrams.csv'))
-        print(f"{(time()-start)/60} minutes to create most sended ngrams file and finish everything.")
+        print(f"{(time()-start)/60} minutes to create most sended ngrams file .")
+        self.create_unique_ngrams(os.path.join('./raw/', 'raw_with_names.csv'), os.path.join(self.staged_path, 'unique_ngrams.csv'))
+        print(f"{time()-start/60} to finish everything.")
+
+
+if __name__ == "__main__":
+    staged = Staged('./staged')
+    staged.create_unique_ngrams('./raw/raw_with_names.csv', os.path.join(staged.staged_path, 'unique_ngrams.csv'))
