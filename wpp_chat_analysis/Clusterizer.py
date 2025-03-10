@@ -16,22 +16,26 @@ class Clusterizer:
         )
         X = vec.fit_transform(new_df['ngram'])
         return X, new_df
+
+    def PCA(self):
+        x, df = self.tfid('./staged/unique_ngrams.csv')
+        pca = PCA(n_components=5)
+        X_reduced = pca.fit_transform(X.toarray())
+        return X_reduced, df
+
+    def run_HDBSCAN_PCA(self):
+        x, df = self.PCA()
+        hdbscan = HDBSCAN(min_cluster_size=2)
+        clusters = hdbscan.fit_predict(X)
         
-# WITH PCA  
+        df['cluster'] = clusters
+        df = df.drop('ngram', axis=1)
+        df = df.groupby('sender').agg({'cluster': 'first'}).reset_index()
+        df.to_csv('./HDBSCAN_PCA.csv', sep=';', index=False)
+        
 if __name__ == "__main__":
     
     clusterizer = Clusterizer()
-    X, df = clusterizer.tfid('./staged/unique_ngrams.csv')
-    print(X.shape)
-    pca = PCA(n_components=5)
-    X_reduced = pca.fit_transform(X.toarray())
-    print(X_reduced.shape)
-    print(f"Explained variance ratio: {sum(pca.explained_variance_ratio_):.2f}")
-    hdb = HDBSCAN(min_cluster_size=2)
-    clusters = hdb.fit_predict(X_reduced)
-    print(clusters)
-    df['cluster'] = clusters
-    df = df.drop('ngram', axis=1)
-    df = df.groupby('sender').agg({'cluster': 'first'}).reset_index()
-    df.to_csv('./clusterizer_PCA.csv', sep=';', index=False)    
+    clusterizer.run_HDBSCAN_PCA()
+
     
