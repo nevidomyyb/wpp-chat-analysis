@@ -20,13 +20,13 @@ class Clusterizer:
     def PCA(self):
         x, df = self.tfid('./staged/unique_ngrams.csv')
         pca = PCA(n_components=5)
-        X_reduced = pca.fit_transform(X.toarray())
+        X_reduced = pca.fit_transform(x.toarray())
         return X_reduced, df
 
     def run_HDBSCAN_PCA(self):
         x, df = self.PCA()
         hdbscan = HDBSCAN(min_cluster_size=2)
-        clusters = hdbscan.fit_predict(X)
+        clusters = hdbscan.fit_predict(x)
         
         df['cluster'] = clusters
         df = df.drop('ngram', axis=1)
