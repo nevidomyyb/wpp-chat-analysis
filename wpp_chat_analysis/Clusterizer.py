@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
 from sklearn.cluster._hdbscan.hdbscan import HDBSCAN
+from sklearn.cluster import DBSCAN
 from time import time
 
 class Clusterizer:
@@ -33,9 +34,21 @@ class Clusterizer:
         df = df.groupby('sender').agg({'cluster': 'first'}).reset_index()
         df.to_csv('./HDBSCAN_PCA.csv', sep=';', index=False)
         
+    def run_DBSCAN_PCA(self):
+        x, df = self.PCA()
+        dbscan = DBSCAN(eps=0.1, min_samples=3, metric='cosine', algorithm='auto')
+        clusters = dbscan.fit_predict(x)
+        
+        df['cluster'] = clusters
+        df.drop('ngram', axis=1)
+        df = df.groupby('sender').agg({"cluster": 'first'}).reset_index()
+        df.to_csv('./DBSCAN_PCA.csv', sep=';', index=False)
+        
+        
 if __name__ == "__main__":
     
     clusterizer = Clusterizer()
-    clusterizer.run_HDBSCAN_PCA()
+    # clusterizer.run_HDBSCAN_PCA()
+    clusterizer.run_DBSCAN_PCA()
 
     
