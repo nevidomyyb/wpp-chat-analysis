@@ -14,6 +14,7 @@ import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import os
 
 class Clusterizer:
     
@@ -33,7 +34,7 @@ class Clusterizer:
 
     def PCA_ungrouped(self):
         x, df = self.tfid('./staged/unique_ngrams.csv', True)
-        pca = PCA(n_components=5)
+        pca = PCA(n_components=1000)
         X_reduced = pca.fit_transform(x)
         return X_reduced, df
 
@@ -65,11 +66,13 @@ class Clusterizer:
     
     def run_KNN_PCA(self):
         x, df = self.PCA_ungrouped()
-        for i in range(x.shape[1]):
-            df[f'embedding_{i}'] = x[:, i]
+        embedding_df = pd.DataFrame(x, columns=[f'embedding_{i}' for i in range(x.shape[1])])
+        df = pd.concat([df, embedding_df], axis=1)
         x = df.filter(like='embedding_')
         y = df['sender']
-        
+        if os.path.exists('./model_KNN_PCA.pkl'):
+            print(x)
+            return
         k_values = list(range(1, 31))
         scores = []
         scaler = StandardScaler()
