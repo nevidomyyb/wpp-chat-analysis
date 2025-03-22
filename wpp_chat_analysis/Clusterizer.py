@@ -1,13 +1,16 @@
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cluster._hdbscan.hdbscan import HDBSCAN
 from sklearn.cluster import DBSCAN, KMeans
+from sklearn.neighbors import KNeighborsClassifier
 from time import time
 from sklearn.manifold import TSNE
 import numpy as np
+import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -60,6 +63,40 @@ class Clusterizer:
         df = df.groupby('sender').agg({"cluster": 'first'}).reset_index()
         df.to_csv('./DBSCAN_PCA.csv', sep=';', index=False)
     
+    def run_KNN_PCA(self):
+        x, df = self.PCA_ungrouped()
+        for i in range(x.shape[1]):
+            df[f'embedding_{i}'] = x[:, i]
+        x = df.filter(like='embedding_')
+        y = df['sender']
+        
+        k_values = list(range(1, 31))
+        scores = []
+        scaler = StandardScaler()
+        X_scalled = scaler.fit_transform(x)
+        for k in k_values:
+            knn = KNeighborsClassifier(n_neighbors=k)
+            score = cross_val_score(knn, X_scalled, y, cv=5)
+            scores.append(np.mean(score))
+        best_index = np.argmax(scores)
+        best_k = k_values[best_index]
+        
+        knn = KNeighborsClassifier(n_neighbors=best_k)
+        X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+        knn.fit(X_train, y_train)
+        y_pred = knn.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred, average='macro')
+        recall = recall_score(y_test, y_pred, average='macro')
+        
+        metrics = pd.DataFrame({
+            "accuracy": [accuracy],  
+            "precision": [precision],  
+            "recall": [recall]  
+        }).to_csv('./KNN_metrics.csv', sep=';')
+        with open('model_KNN_PCA.pkl', "wb") as f:
+            pickle.dump(knn, f)
+    
     def run_KMEANS_PCA(self):
         x, df = self.PCA_ungrouped()
         kmeans = KMeans(n_clusters=6, n_init='auto')
@@ -91,7 +128,8 @@ if __name__ == "__main__":
     clusterizer = Clusterizer()
     # clusterizer.run_HDBSCAN_PCA()
     # clusterizer.run_DBSCAN_PCA()
-    clusterizer.run_KMEANS_PCA()
+    # clusterizer.run_KMEANS_PCA()
+    clusterizer.run_KNN_PCA()
     # clusterizer.view_TSNE()
 
     
