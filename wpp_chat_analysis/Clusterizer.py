@@ -104,6 +104,7 @@ class Clusterizer:
         x, df = self.PCA_ungrouped()
         kmeans = KMeans(n_clusters=6, n_init='auto')
         clusters = kmeans.fit_transform(x)
+        
         print("Clusters ->")
         print(clusters)
         df['cluster'] = clusters
